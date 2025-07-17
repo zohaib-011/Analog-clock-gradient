@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viral YouTube Tutorial Watch</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            position: relative;
+            padding: 10px;
+        }
+
+        #matrix-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .watch-container {
+            position: relative;
+            width: min(90vw, 90vh, 600px);
+            height: min(90vw, 90vh, 600px);
+            max-width: 600px;
+            max-height: 600px;
+            z-index: 10;
+            transform-style: preserve-3d;
+        }
+
+        .holographic-watch {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            animation: float3D 6s ease-in-out infinite;
+        }
+
+        @keyframes float3D {
+            0%, 100% {
+                transform: translateY(0) rotateX(0deg) rotateY(0deg);
+            }
+            25% {
+                transform: translateY(-20px) rotateX(5deg) rotateY(5deg);
+            }
+            50% {
+                transform: translateY(0) rotateX(0deg) rotateY(10deg);
+            }
+            75% {
+                transform: translateY(-10px) rotateX(-5deg) rotateY(5deg);
+            }
+        }
+
+        .watch-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, 
+                rgba(0, 255, 255, 0.1) 0%, 
+                rgba(255, 0, 255, 0.1) 30%, 
+                rgba(0, 0, 0, 0.9) 70%);
+            border-radius: 50%;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 
+                0 0 100px rgba(0, 255, 255, 0.5),
+                0 0 200px rgba(255, 0, 255, 0.3),
+                inset 0 0 100px rgba(0, 0, 0, 0.5);
+        }
+
+        .hologram-layer {
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            top: -10%;
+            left: -10%;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                rgba(0, 255, 255, 0.1) 45deg,
+                transparent 90deg,
+                rgba(255, 0, 255, 0.1) 135deg,
+                transparent 180deg,
+                rgba(255, 255, 0, 0.1) 225deg,
+                transparent 270deg,
+                rgba(0, 255, 255, 0.1) 315deg,
+                transparent 360deg
+            );
+            animation: hologramSpin 3s linear infinite;
+        }
+
+        @keyframes hologramSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Hour markers for proper time alignment */
+        .hour-markers {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .hour-marker {
+            position: absolute;
+            width: 0.8vw;
+            height: 8vw;
+            max-width: 4px;
+            max-height: 40px;
+            min-width: 2px;
+            min-height: 20px;
+            background: linear-gradient(to bottom, #00ffff, transparent);
+            left: 50%;
+            top: 2%;
+            transform-origin: 50% calc(48vw - 2%);
+            box-shadow: 0 0 10px #00ffff;
+            border-radius: 2px;
+        }
+
+        .hour-marker.major {
+            width: 1.2vw;
+            height: 12vw;
+            max-width: 6px;
+            max-height: 60px;
+            min-width: 3px;
+            min-height: 30px;
+            background: linear-gradient(to bottom, #ff00ff, transparent);
+            box-shadow: 0 0 15px #ff00ff;
+        }
+
+        @media (min-width: 600px) {
+            .hour-marker {
+                transform-origin: 50% 290px;
+            }
+        }
+
+        .neon-time {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(18px, 5vw, 32px);
+            font-weight: 900;
+            color: #00ffff;
+            text-shadow: 
+                0 0 10px #00ffff,
+                0 0 20px #00ffff,
+                0 0 30px #00ffff,
+                0 0 40px #00ffff;
+            animation: neonPulse 2s ease-in-out infinite alternate;
+            white-space: nowrap;
+        }
+
+        @keyframes neonPulse {
+            0% {
+                text-shadow: 
+                    0 0 10px #00ffff,
+                    0 0 20px #00ffff,
+                    0 0 30px #00ffff,
+                    0 0 40px #00ffff;
+            }
+            100% {
+                text-shadow: 
+                    0 0 20px #00ffff,
+                    0 0 30px #00ffff,
+                    0 0 40px #00ffff,
+                    0 0 50px #00ffff,
+                    0 0 60px #00ffff;
+            }
+        }
+
+        .data-stream {
+            position: absolute;
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(8px, 2vw, 12px);
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            animation: dataFlow 4s linear infinite;
+        }
+
+        @keyframes dataFlow {
+            0% {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+
+        .weather-hud {
+            position: absolute;
+            top: clamp(20px, 8%, 50px);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: clamp(5px, 2vw, 10px);
+            border-radius: clamp(10px, 3vw, 20px);
+            border: 2px solid rgba(255, 0, 255, 0.5);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.3);
+            max-width: 90%;
+        }
+
+        .temp-display {
+            font-size: clamp(20px, 6vw, 36px);
+            font-weight: 700;
+            color: #ff00ff;
+            text-shadow: 0 0 20px #ff00ff;
+            margin-right: clamp(10px, 3vw, 20px);
+            white-space: nowrap;
+        }
+
+        .weather-condition {
+            font-size: clamp(12px, 3vw, 18px);
+            color: #ffff00;
+            text-shadow: 0 0 15px #ffff00;
+            margin-bottom: 5px;
+            white-space: nowrap;
+        }
+
+        .location-display {
+            font-size: clamp(10px, 2.5vw, 14px);
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            white-space: nowrap;
+        }
+
+        .date-hud {
+            position: absolute;
+            bottom: clamp(60px, 15%, 100px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(12px, 3vw, 16px);
+            color: #ffff00;
+            text-shadow: 0 0 20px #ffff00;
+            background: rgba(0, 0, 0, 0.7);
+            padding: clamp(10px, 2.5vw, 15px) clamp(15px, 4vw, 25px);
+            border-radius: clamp(8px, 2.5vw, 15px);
+            border: 2px solid rgba(255, 255, 0, 0.5);
+            backdrop-filter: blur(10px);
+            white-space: nowrap;
+        }
+
+        .analog-hands {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .hand {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform-origin: 50% 100%;
+            border-radius: 10px;
+            z-index: 15;
+        }
+
+        .hour-hand {
+            width: clamp(4px, 1.5vw, 8px);
+            height: clamp(60px, 20vw, 120px);
+            background: linear-gradient(to top, #ff00ff, #ff66ff);
+            margin-left: calc(clamp(4px, 1.5vw, 8px) / -2);
+            margin-top: calc(clamp(60px, 20vw, 120px) * -1);
+            box-shadow: 0 0 20px #ff00ff;
+            filter: drop-shadow(0 0 10px #ff00ff);
+        }
+
+        .minute-hand {
+            width: clamp(3px, 1vw, 6px);
+            height: clamp(80px, 27vw, 160px);
+            background: linear-gradient(to top, #00ffff, #66ffff);
+            margin-left: calc(clamp(3px, 1vw, 6px) / -2);
+            margin-top: calc(clamp(80px, 27vw, 160px) * -1);
+            box-shadow: 0 0 20px #00ffff;
+            filter: drop-shadow(0 0 10px #00ffff);
+        }
+
+        .second-hand {
+            width: clamp(2px, 0.5vw, 3px);
+            height: clamp(90px, 30vw, 180px);
+            background: linear-gradient(to top, #ffff00, #ffff66);
+            margin-left: calc(clamp(2px, 0.5vw, 3px) / -2);
+            margin-top: calc(clamp(90px, 30vw, 180px) * -1);
+            box-shadow: 0 0 20px #ffff00;
+            filter: drop-shadow(0 0 10px #ffff00);
+        }
+
+        .center-core {
+            position: absolute;
+            width: clamp(20px, 5vw, 30px);
+            height: clamp(20px, 5vw, 30px);
+            background: radial-gradient(circle, #ffffff, #cccccc);
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            box-shadow: 
+                0 0 30px rgba(255, 255, 255, 0.8),
+                inset 0 0 10px rgba(0, 0, 0, 0.3);
+            animation: corePulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes corePulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 
+                    0 0 30px rgba(255, 255, 255, 0.8),
+                    inset 0 0 10px rgba(0, 0, 0, 0.3);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                box-shadow: 
+                    0 0 50px rgba(255, 255, 255, 1),
+                    inset 0 0 10px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        .energy-rings {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .energy-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid;
+            animation: energyPulse 3s ease-in-out infinite;
+        }
+
+        .ring-1 {
+            width: clamp(260px, 87vw, 520px);
+            height: clamp(260px, 87vw, 520px);
+            top: clamp(20px, 6.5vw, 40px);
+            left: clamp(20px, 6.5vw, 40px);
+            border-color: rgba(0, 255, 255, 0.6);
+            animation-delay: 0s;
+        }
+
+        .ring-2 {
+            width: clamp(280px, 93vw, 560px);
+            height: clamp(280px, 93vw, 560px);
+            top: clamp(10px, 3.5vw, 20px);
+            left: clamp(10px, 3.5vw, 20px);
+            border-color: rgba(255, 0, 255, 0.6);
+            animation-delay: 1s;
+        }
+
+        .ring-3 {
+            width: clamp(300px, 100vw, 600px);
+            height: clamp(300px, 100vw, 600px);
+            top: 0px;
+            left: 0px;
+            border-color: rgba(255, 255, 0, 0.6);
+            animation-delay: 2s;
+        }
+
+        @keyframes energyPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.3;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        .hud-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .hud-corner {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 2px solid;
+            border-radius: 10px;
+        }
+
+        .hud-tl {
+            top: 50px;
+            left: 50px;
+            border-color: #00ffff;
+            border-bottom: none;
+            border-right: none;
+            animation: hudFlicker 2s ease-in-out infinite;
+        }
+
+        .hud-tr {
+            top: 50px;
+            right: 50px;
+            border-color: #ff00ff;
+            border-bottom: none;
+            border-left: none;
+            animation: hudFlicker 2s ease-in-out infinite 0.5s;
+        }
+
+        .hud-bl {
+            bottom: 50px;
+            left: 50px;
+            border-color: #ffff00;
+            border-top: none;
+            border-right: none;
+            animation: hudFlicker 2s ease-in-out infinite 1s;
+        }
+
+        .hud-br {
+            bottom: 50px;
+            right: 50px;
+            border-color: #00ff00;
+            border-top: none;
+            border-left: none;
+            animation: hudFlicker 2s ease-in-out infinite 1.5s;
+        }
+
+        @keyframes hudFlicker {
+            0%, 100% {
+                opacity: 0.3;
+                box-shadow: none;
+            }
+            50% {
+                opacity: 1;
+                box-shadow: 0 0 20px currentColor;
+            }
+        }
+
+        .power-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 16px;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .scanning-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            top: 50%;
+            left: 0;
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% {
+                transform: translateY(-300px);
+                opacity: 0;
+            }
+            10%, 90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(300px);
+                opacity: 0;
+            }
+        }
+
+        .glitch-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 0, 255, 0.1) 50%,
+                transparent 100%
+            );
+            animation: glitch 4s linear infinite;
+        }
+
+        /* Mobile specific optimizations */
+        @media (max-width: 768px) {
+            .float3D {
+                animation: float3DMobile 6s ease-in-out infinite;
+            }
+            
+            .weather-hud {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .temp-display {
+                margin-right: 0;
+                margin-bottom: 5px;
+            }
+            
+            .neon-time {
+                top: 40%;
+            }
+            
+            .date-hud {
+                bottom: 10%;
+            }
+        }
+
+        @keyframes float3DMobile {
+            0%, 100% {
+                transform: translateY(0) rotateX(0deg) rotateY(0deg);
+            }
+            25% {
+                transform: translateY(-10px) rotateX(2deg) rotateY(2deg);
+            }
+            50% {
+                transform: translateY(0) rotateX(0deg) rotateY(5deg);
+            }
+            75% {
+                transform: translateY(-5px) rotateX(-2deg) rotateY(2deg);
+            }
+        }
+
+        /* Touch optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .holographic-watch {
+                animation: float3DMobile 6s ease-in-out infinite;
+            }
+            
+            .watch-container:active {
+                transform: scale(0.95);
+                transition: transform 0.1s ease;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-bg"></canvas>
+    
+    <div class="watch-container">
+        <div class="energy-rings">
+            <div class="energy-ring ring-1"></div>
+            <div class="energy-ring ring-2"></div>
+            <div class="energy-ring ring-3"></div>
+        </div>
+        
+        <div class="holographic-watch">
+            <div class="hologram-layer"></div>
+            <div class="watch-face">
+                <div class="glitch-effect"></div>
+                <div class="scanning-line"></div>
+                
+                <!-- Hour markers -->
+                <div class="hour-markers">
+                    <div class="hour-marker major" style="transform: rotate(0deg) translateX(-50%);"></div>
+                    <div class="hour-marker" style="transform: rotate(30deg) translateX(-50%);"></div>
+                    <div class="hour-marker" style="transform: rotate(60deg) translateX(-50%);"></div>
+                    <div class="hour-marker major" style="transform: rotate(90deg) translateX(-50%);"></div>
+                    <div class="hour-marker" style="transform: rotate(120deg) translateX(-50%);"></div>
+                    <div class="hour-marker" style="transform: rotate(150deg) translateX(-50%);"></div>
+                    <div class="hour-marker major" style="transform: rotate(180deg) translateX(-50%);"></div>
+                    <div class="hour-marker" style="transform: rotate(210deg) translateX(-50%);"></div>
+                    <div class="hour-marker" style="transform: rotate(240deg) translateX(-50%);"></div>
+                    <div class="hour-marker major" style="transform: rotate(270deg) translateX(-50%);"></div>
+                    <div class="hour-marker" style="transform: rotate(300deg) translateX(-50%);"></div>
+                    <div class="hour-marker" style="transform: rotate(330deg) translateX(-50%);"></div>
+                </div>
+                
+                <div class="neon-time" id="neon-time">00:00:00</div>
+                
+                <div class="weather-hud">
+                    <div class="temp-display" id="temp-display">25°C</div>
+                    <div>
+                        <div class="weather-condition" id="weather-condition">SUNNY</div>
+                        <div class="location-display">BHAGWAL, PUNJAB</div>
+                    </div>
+                </div>
+                
+                <div class="date-hud" id="date-hud">MONDAY, JAN 01</div>
+                
+                <div class="analog-hands">
+                    <div class="hand hour-hand" id="hour-hand"></div>
+                    <div class="hand minute-hand" id="minute-hand"></div>
+                    <div class="hand second-hand" id="second-hand"></div>
+                </div>
+                
+                <div class="center-core"></div>
+                
+                <!-- Data streams -->
+                <div class="data-stream" style="top: 150px; left: 100px;" id="stream-1">SYS: OK</div>
+                <div class="data-stream" style="top: 200px; right: 100px;" id="stream-2">PWR: 100%</div>
+                <div class="data-stream" style="bottom: 150px; left: 80px;" id="stream-3">NET: CONN</div>
+                <div class="data-stream" style="bottom: 200px; right: 80px;" id="stream-4">GPS: ACTIVE</div>
+            </div>
+        </div>
+        
+        <div class="hud-elements">
+            <div class="hud-corner hud-tl"></div>
+            <div class="hud-corner hud-tr"></div>
+            <div class="hud-corner hud-bl"></div>
+            <div class="hud-corner hud-br"></div>
+            <div class="power-indicator">POWER: 100%</div>
+        </div>
+    </div>
+
+    <script>
+        // Matrix background effect
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+        const matrixArray = matrix.split("");
+        
+        const fontSize = 10;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#00ff00';
+            ctx.font = fontSize + 'px arial';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 35);
+        
+        // Weather conditions with cyberpunk themes
+        const weatherConditions = [
+            { temp: 25, condition: "SUNNY", color: "#ffff00" },
+            { temp: 18, condition: "CLOUDY", color: "#888888" },
+            { temp: 15, condition: "RAINY", color: "#00ffff" },
+            { temp: 30, condition: "HOT", color: "#ff0000" },
+            { temp: 22, condition: "WINDY", color: "#00ff00" },
+            { temp: 28, condition: "STORM", color: "#ff00ff" }
+        ];
+        
+        let currentWeatherIndex = 0;
+        
+        function updateWeather() {
+            const weather = weatherConditions[currentWeatherIndex];
+            document.getElementById('temp-display').textContent = `${weather.temp}°C`;
+            document.getElementById('weather-condition').textContent = weather.condition;
+            document.getElementById('weather-condition').style.color = weather.color;
+            document.getElementById('weather-condition').style.textShadow = `0 0 15px ${weather.color}`;
+            
+            currentWeatherIndex = (currentWeatherIndex + 1) % weatherConditions.length;
+        }
+        
+        // Data stream messages
+        const dataMessages = [
+            "SYS: OK", "PWR: 100%", "NET: CONN", "GPS: ACTIVE",
+            "TEMP: NORMAL", "RADAR: ON", "SHIELD: UP", "CORE: STABLE",
+            "LINK: SECURE", "DATA: SYNC", "MODE: ACTIVE", "STATUS: ONLINE"
+        ];
+        
+        function updateDataStreams() {
+            const streams = document.querySelectorAll('.data-stream');
+            streams.forEach((stream, index) => {
+                stream.textContent = dataMessages[Math.floor(Math.random() * dataMessages.length)];
+            });
+        }
+        
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            
+            // Update digital time
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('neon-time').textContent = timeString;
+            
+            // Update date
+            const dateString = now.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                month: 'short', 
+                day: 'numeric' 
+            }).toUpperCase();
+            document.getElementById('date-hud').textContent = dateString;
+            
+            // CORRECTED: Calculate proper angles for watch hands
+            // 12 o'clock position is at 0 degrees (top of the circle)
+            const secondAngle = (seconds * 6); // 6 degrees per second
+            const minuteAngle = (minutes * 6 + seconds * 0.1); // 6 degrees per minute + smooth seconds
+            const hourAngle = ((hours % 12) * 30 + minutes * 0.5); // 30 degrees per hour + smooth minutes
+            
+            // Apply rotation to hands
+            gsap.to('#second-hand', { rotation: secondAngle, duration: 0.1, ease: "none" });
+            gsap.to('#minute-hand', { rotation: minuteAngle, duration: 0.5, ease: "power1.out" });
+            gsap.to('#hour-hand', { rotation: hourAngle, duration: 0.5, ease: "power1.out" });
+        }
+        
+        // Initialize everything
+        updateClock();
+        updateWeather();
+        updateDataStreams();
+        
+        // Update intervals
+        setInterval(updateClock, 1000);
+        setInterval(updateWeather, 8000);
+        setInterval(updateDataStreams, 3000);
+        
+        // Entrance animation
+        gsap.fromTo('.watch-container', 
+            { 
+                scale: 0, 
+                rotationY: 180,
+                opacity: 0 
+            }, 
+            { 
+                scale: 1, 
+                rotationY: 0,
+                opacity: 1,
+                duration: 3, 
+                ease: "power3.out",
+                delay: 0.5
+            }
+        );
+        
+        // Dramatic entrance for HUD elements
+        gsap.fromTo('.hud-corner', 
+            { 
+                scale: 0,
+                rotation: 45,
+                opacity: 0 
+            }, 
+            { 
+                scale: 1,
+                rotation: 0,
+                opacity: 1,
+                duration: 1.5, 
+                stagger: 0.2,
+                delay: 2,
+                ease: "back.out(1.7)"
+            }
+        );
+        
+        // Interactive effects
+        document.querySelector('.watch-container').addEventListener('mouseenter', () => {
+            gsap.to('.holographic-watch', { 
+                scale: 1.1, 
+                duration: 0.5,
+                ease: "power2.out"
+            });
+            gsap.to('.energy-ring', { 
+                scale: 1.2, 
+                duration: 0.5,
+                stagger: 0.1
+            });
+        });
+        
+        document.querySelector('.watch-container').addEventListener('mouseleave', () => {
+            gsap.to('.holographic-watch', { 
+                scale: 1, 
+                duration: 0.5,
+                ease: "power2.out"
+            });
+            gsap.to('.energy-ring', { 
+                scale: 1, 
+                duration: 0.5,
+                stagger: 0.1
+            });
+        });
+        
+        // Random glitch effects
+        setInterval(() => {
+            if (Math.random() > 0.7) {
+                gsap.to('.neon-time', {
+                    x: Math.random() * 10 - 5,
+                    duration: 0.1,
+                    yoyo: true,
+                    repeat: 3
+                });
+            }
+        }, 2000);
+        
+        // Window resize handler
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
