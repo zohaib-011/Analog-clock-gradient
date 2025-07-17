@@ -1,6 +1,8 @@
 ⚡ Cyberpunk Animated Clock Analog Portfolio
 
 
+
+![Screenshot](screenshot.png)
 A futuristic portfolio website featuring a stunning holographic analog clock, matrix background, real-time GSAP animations, and weather HUD, all crafted using HTML, CSS, JavaScript, and Three.js.
 
 🌐 Live Demo
